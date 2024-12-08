@@ -1,0 +1,34 @@
+@page
+@using MyCrm.Localization
+@using MyCrm.Permissions
+@using MyCrm.Web.Pages.Vendors
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@model IndexModel
+@inject IStringLocalizer<MyCrmResource> L
+@inject IAuthorizationService AuthorizationService
+@section scripts
+{
+    <abp-script src="/Pages/Vendors/Index.js" />
+}
+<abp-card>
+    <abp-card-header>
+        <abp-row>
+            <abp-column size-md="_6">
+                <abp-card-title>@L["Menu:Vendors"]</abp-card-title>
+            </abp-column>
+            <abp-column size-md="_6" class="text-end">
+                 @if (await AuthorizationService.IsGrantedAsync(MyCrmPermissions.Vendors.Create))
+                {
+                    <abp-button id="NewVendorButton"
+                                text="@L["NewVendor"].Value"
+                                icon="plus"
+                                button-type="Primary"/>
+                }
+            </abp-column>
+        </abp-row>
+    </abp-card-header>
+    <abp-card-body>
+        <abp-table striped-rows="true" id="VendorsTable"></abp-table>
+    </abp-card-body>
+</abp-card>

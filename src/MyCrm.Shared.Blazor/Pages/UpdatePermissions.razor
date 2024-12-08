@@ -1,0 +1,119 @@
+@page "/permissions/{Name:alpha}"
+@inject AppService AppService
+@inject ISnackbar Snackbar
+@inject HttpClient HttpClient
+@inject NavigationManager Navigation
+@using System.Text.Json
+@attribute [Authorize]
+
+
+@if (PermissionInfo == null)
+{
+    <MudDialog DefaultFocus="DefaultFocus.Element">
+        <DialogContent>
+            <MudText>Loading...</MudText>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="OnCancel">Cancel</MudButton>
+            <MudButton Color="Color.Primary" Disabled="true">Update</MudButton>
+        </DialogActions>
+    </MudDialog>
+}
+else
+{
+    <EditForm Model="@PermissionInfo" OnSubmit="@OnSubmit">
+        <DataAnnotationsValidator />
+        <MudDialog DefaultFocus="DefaultFocus.Element">
+            <DialogContent>
+                @if (@PermissionInfo.EntityDisplayName == "admin") IsAdmin = true; else IsAdmin = false;
+                <MudText Typo="Typo.h5">Permissions: @PermissionInfo.EntityDisplayName</MudText>
+                <br />
+                @foreach (var group in PermissionInfo.Groups)
+                {
+                    <MudText Typo="Typo.h5">@group.DisplayName</MudText>
+                    <MudCheckBox T="bool?" Color="Color.Primary" Label="Select all" Value="group.Permissions.All(x => x.IsGranted) ? true : (group.Permissions.Any(x => x.IsGranted) ? null : false)" ValueChanged="e => OnSelectAll(e, group)" ReadOnly="@IsAdmin" />
+                    foreach (var permission in group.Permissions)
+                    {
+                        <MudCheckBox T="bool" Color="Color.Primary" @bind-Checked="permission.IsGranted" Label="@permission.DisplayName" ReadOnly="@IsAdmin" />
+                    }
+                }
+            </DialogContent>
+            <DialogActions>
+                <MudButton OnClick="OnCancel">Cancel</MudButton>
+                <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Update</MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public string Name { get; set; }
+
+    public bool IsAdmin = true;
+
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+
+    public PermissionsDto PermissionInfo;
+
+    List<object> permissions = new List<object>();
+
+    private void OnSelectAll(bool? value, PermissionsDto.Group group)
+    {
+        if (!value.HasValue)
+        {
+            return;
+        }
+
+        foreach (var permission in group.Permissions)
+        {
+            permission.IsGranted = value.Value;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            PermissionInfo = await AppService.GetPermissionsAsync("R", Name);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private void OnCancel()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async void OnSubmit()
+    {
+        if (PermissionInfo == null)
+        {
+            return;
+        }
+
+        try
+        {
+            foreach (var group in PermissionInfo.Groups)
+            {
+                foreach (var permission in group.Permissions)
+                {
+                    Console.WriteLine(permission.Name + ", " + permission.IsGranted);
+                    permissions.Add(new { name = permission.Name, isGranted = permission.IsGranted });
+                }
+            }
+
+            await AppService.ModifyPermissionsAsync("R", Name, permissions);
+            MudDialog?.Close();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}
+

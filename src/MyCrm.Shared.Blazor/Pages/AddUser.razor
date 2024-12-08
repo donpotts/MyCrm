@@ -1,0 +1,60 @@
+@page "/users/add"
+@inject AppService AppService
+@inject ISnackbar Snackbar
+@inject HttpClient HttpClient
+@inject NavigationManager Navigation
+@attribute [Authorize]
+
+<PageTitle>Add User</PageTitle>
+
+<EditForm Model="@registerModel" OnValidSubmit="@OnSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">Add User</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudTextField @bind-Value="registerModel.UserName" For="@(() => registerModel.UserName)" Label="User Name" />
+            <MudTextField @bind-Value="registerModel.Password" For="@(() => registerModel.Password)" Label="Password" InputType="InputType.Password" />
+            <MudTextField @bind-Value="registerModel.Name" For="@(() => registerModel.Name)" Label="First Name" />
+            <MudTextField @bind-Value="registerModel.Surname" For="@(() => registerModel.Surname)" Label="Last Name" />
+            <MudTextField @bind-Value="registerModel.Email" For="@(() => registerModel.Email)" Label="Email" />
+            <MudTextField @bind-Value="registerModel.PhoneNumber" For="@(() => registerModel.PhoneNumber)" Label="Phone Number" />
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="OnCancel">Cancel</MudButton>
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Add</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+
+    private User registerModel = new();
+
+    private void OnCancel()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async void OnSubmit()
+    {
+        try
+        {
+            registerModel.LockoutEnabled = true;
+            registerModel.RoleNames = new List<string>();
+            registerModel.RoleNames.Add("admin");
+            registerModel.ExtraProperties = new Dictionary<string, object>();
+
+            await AppService.RegisterUserAsync(registerModel);
+            MudDialog?.Close();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}

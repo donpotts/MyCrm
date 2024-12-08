@@ -1,0 +1,21 @@
+@page "/logout"
+@using MyCrm.Shared.Blazor.Authentication
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+
+<PageTitle>Logout</PageTitle>
+
+<div class="mb-3">
+    <MudText Typo="Typo.h3">Logout</MudText>
+</div>
+
+<MudText>Logging out...</MudText>
+
+@code {
+    protected override void OnInitialized()
+    {
+        ((JwtAuthenticationStateProvider)AuthenticationStateProvider).Logout();
+
+        Navigation.NavigateTo("");
+    }
+}

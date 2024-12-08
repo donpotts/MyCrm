@@ -1,0 +1,106 @@
+@inject AppService AppService
+@inject ISnackbar Snackbar
+@inject HttpClient HttpClient
+@attribute [Authorize]
+
+@if (record == null)
+{
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">Modify Roles</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudText>Loading...</MudText>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="OnCancel">Cancel</MudButton>
+            <MudButton Color="Color.Primary" Disabled="true">Update</MudButton>
+        </DialogActions>
+    </MudDialog>
+}
+else
+{
+    <EditForm Model="model" OnSubmit="OnSubmit">
+        <MudDialog>
+            <TitleContent>
+                <MudText Typo="Typo.h6">Modify Roles for User</MudText>
+            </TitleContent>
+            <DialogContent>
+                <MudSelect T="string" Label="Role Names" MultiSelection="true" @bind-SelectedValues="@model.RoleNames">
+                    @if (allRoleNames != null)
+                        @foreach (var role in allRoleNames)
+                        {
+                            <MudSelectItem T="string" Value="@role">@role</MudSelectItem>
+                        }
+                </MudSelect>
+            </DialogContent>
+            <DialogActions>
+                <MudButton OnClick="OnCancel">Cancel</MudButton>
+                <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Update</MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; } = null!;
+
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+
+    private User? record;
+    private List<string>? roleNames;
+    private List<string>? allRoleNames;
+    private ModifyRolesModel model = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            record = new();
+            record.RoleNames = new();
+            RoleItemsDto<RoleItems> allRoleItems = await AppService.GetAllRolesAsync();
+            allRoleNames = allRoleItems?.Items?.Select(item => item.Name).ToList();
+
+            RoleItemsDto<RoleItems> roleItems = await AppService.GetRolesByUserIdAsync(Id);
+            roleNames = roleItems?.Items?.Select(item => item.Name).ToList();
+
+            if (roleNames != null)
+                foreach (string roleName in roleNames)
+                {
+                    record.RoleNames.Add(roleName);
+                }
+
+            model.RoleNames = roleNames?.AsEnumerable() ?? [];
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private void OnCancel()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async void OnSubmit()
+    {
+        try
+        {
+            await AppService.ModifyRolesAsync(Id, model.RoleNames);
+            MudDialog?.Close();
+            Snackbar.Add("Role has been updated.", Severity.Info);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private class ModifyRolesModel
+    {
+        public IEnumerable<string> RoleNames { get; set; } = [];
+    }
+}

@@ -1,0 +1,94 @@
+@inject AppService AppService
+@inject ISnackbar Snackbar
+@inject HttpClient HttpClient
+
+<EditForm Model="@record" OnValidSubmit="@OnSubmit">
+    <DataAnnotationsValidator />
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">Add Service</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudNumericField @bind-Value="record.Id" For="@(() => record.Id)" Label="Id" ReadOnly="true" />
+            <MudTextField @bind-Value="record.Name" For="@(() => record.Name)" Label="Name" />
+            <MudTextField @bind-Value="record.Description" For="@(() => record.Description)" Label="Description" />
+            <MudTextField @bind-Value="record.Recurring" For="@(() => record.Recurring)" Label="Recurring" />
+            <MudTextField @bind-Value="record.Icon" For="@(() => record.Icon)" Label="Icon" />
+            <MudTextField @bind-Value="record.Notes" For="@(() => record.Notes)" Label="Notes" />
+            @if (serviceCategoryArray != null)
+            {
+                <MudSelect @bind-Value="record.ServiceCategory.Id" For="@(() => record.ServiceCategory.Id)" Label="ServiceCategory" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem T="long" Value="0" />
+                    @foreach (var serviceCategory in serviceCategoryArray ?? Enumerable.Empty<ServiceCategory>())
+                    {
+                        <MudSelectItem Value="@serviceCategory.Id">@serviceCategory.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="OnCancel">Cancel</MudButton>
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Add</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+
+    private Service record = new();
+    private ServiceCategory[] serviceCategoryArray;
+
+    private string GetAbsoluteUri(string uri)
+    {
+        if (!uri.StartsWith("/"))
+        {
+            return uri;
+        }
+
+        var baseUri = HttpClient.BaseAddress;
+
+        if (baseUri == null)
+        {
+            throw new Exception("Unable to determine base address");
+        }
+
+        Uri absolute = new(baseUri, uri);
+
+        return absolute.ToString();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        PagedResultDto<ServiceCategory> resServiceCategory = await AppService.ListServiceCategoriesAsync("", 0, null);
+        serviceCategoryArray = resServiceCategory.Items.ToArray();
+        if (record.ServiceCategory == null)
+        {
+            record.ServiceCategoryId = 0;
+            record.ServiceCategory = new ServiceCategory();
+        }
+    }
+
+    private void OnCancel()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async void OnSubmit()
+    {
+        try
+        {
+            if (record.ServiceCategory.Id != null)
+                record.ServiceCategoryId = record.ServiceCategory.Id;
+            await AppService.InsertServiceAsync(record);
+            MudDialog?.Close();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}

@@ -1,0 +1,156 @@
+@inject AppService AppService
+@inject ISnackbar Snackbar
+@inject HttpClient HttpClient
+
+@if (record == null)
+{
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">Update Contact</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudText>Loading...</MudText>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="OnCancel">Cancel</MudButton>
+            <MudButton Color="Color.Primary" Disabled="true">Update</MudButton>
+        </DialogActions>
+    </MudDialog>
+}
+else
+{
+    <EditForm Model="@record" OnValidSubmit="@OnSubmit">
+        <DataAnnotationsValidator />
+        <MudDialog>
+            <TitleContent>
+                <MudText Typo="Typo.h6">Update Contact</MudText>
+            </TitleContent>
+            <DialogContent>
+                <MudNumericField @bind-Value="record.Id" For="@(() => record.Id)" Label="Id" ReadOnly="true" />
+                <MudTextField @bind-Value="record.Name" For="@(() => record.Name)" Label="Name" />
+                <MudTextField @bind-Value="record.Email" For="@(() => record.Email)" Label="Email" />
+                <MudTextField @bind-Value="record.Phone" For="@(() => record.Phone)" Label="Phone" />
+                <MudTextField @bind-Value="record.Role" For="@(() => record.Role)" Label="Role" />
+                <MudTextField @bind-Value="record.Photo" For="@(() => record.Photo)" Label="Photo" />
+                <MudTextField @bind-Value="record.Notes" For="@(() => record.Notes)" Label="Notes" />
+
+                @if (addressArray != null)
+                {
+                    <MudSelect @bind-Value="record.Address.Id" For="@(() => record.Address.Id)" Label="Address" AnchorOrigin="Origin.BottomCenter">
+                        <MudSelectItem T="long" Value="0" />
+                        @foreach (var address in addressArray ?? Enumerable.Empty<Address>())
+                        {
+                            <MudSelectItem Value="@address.Id">@address.City</MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+                @if (rewardArray != null)
+                {
+                    <MudSelect @bind-Value="record.Reward.Id" For="@(() => record.Reward.Id)" Label="Reward" AnchorOrigin="Origin.BottomCenter">
+                        <MudSelectItem T="long" Value="0" />
+                        @foreach (var reward in rewardArray ?? Enumerable.Empty<Reward>())
+                        {
+                            <MudSelectItem Value="@reward.Id">@reward.Rewardpoints</MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+
+
+
+            </DialogContent>
+            <DialogActions>
+                <MudButton OnClick="OnCancel">Cancel</MudButton>
+                <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Update</MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public long Id { get; set; }
+
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+
+    private Contact? record;
+
+    private Address[] addressArray;
+    private Reward[] rewardArray;
+
+    private string GetAbsoluteUri(string uri)
+    {
+        if (!uri.StartsWith("/"))
+        {
+            return uri;
+        }
+
+        var baseUri = HttpClient.BaseAddress;
+
+        if (baseUri == null)
+        {
+            throw new Exception("Unable to determine base address");
+        }
+
+        Uri absolute = new(baseUri, uri);
+
+        return absolute.ToString();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            record = await AppService.GetContactByIdAsync(Id);
+
+
+
+            PagedResultDto<Address> resAddress = await AppService.ListAddressesAsync("City ASC", 0, null);
+            addressArray = resAddress.Items.ToArray();
+            if (record.Address == null)
+            {
+                record.AddressId = 0;
+                record.Address = new Address();
+            }
+            PagedResultDto<Reward> resReward = await AppService.ListRewardsAsync("Rewardpoints ASC", 0, null);
+            rewardArray = resReward.Items.ToArray();
+            if (record.Reward == null)
+            {
+                record.RewardId = 0;
+                record.Reward = new Reward();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private void OnCancel()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async void OnSubmit()
+    {
+        if (record == null)
+        {
+            return;
+        }
+
+        try
+        {
+            if (record.Address.Id != null)
+                record.AddressId = record.Address.Id;
+            if (record.Reward.Id != null)
+                record.RewardId = record.Reward.Id;
+
+            await AppService.UpdateContactAsync(Id, record);
+            MudDialog?.Close();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}

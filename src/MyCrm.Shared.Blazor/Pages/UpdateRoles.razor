@@ -1,0 +1,92 @@
+@page "/roles/{Id:alpha}"
+@inject AppService AppService
+@inject ISnackbar Snackbar
+@inject HttpClient HttpClient
+@inject NavigationManager Navigation
+@attribute [Authorize]
+
+<PageTitle>Update Role</PageTitle>
+
+@if (roleItem == null)
+{
+    <MudDialog DefaultFocus="DefaultFocus.Element">
+        <TitleContent>
+            <MudText Typo="Typo.h6">Update Role</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudText>Loading...</MudText>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="OnCancel">Cancel</MudButton>
+            <MudButton Color="Color.Primary" Disabled="true">Update</MudButton>
+        </DialogActions>
+    </MudDialog>
+}
+else
+{
+    <EditForm Model="@roleItem" OnSubmit="@OnSubmit">
+        <DataAnnotationsValidator />
+        <MudDialog DefaultFocus="DefaultFocus.Element">
+            <TitleContent>
+                <MudText Typo="Typo.h6">Update User</MudText>
+            </TitleContent>
+            <DialogContent>
+                <MudTextField @bind-Value="roleItem.Name" For="@(() => roleItem.Name)" Label="Name" ReadOnly="true" />
+                <MudCheckBox T="bool" @bind-Value="roleItem.IsDefault" For="@(() => roleItem.IsDefault)" Label="Is Default" />
+                <MudCheckBox T="bool" @bind-Value="roleItem.IsPublic" For="@(() => roleItem.IsPublic)" Label="Is Public" />
+
+            </DialogContent>
+            <DialogActions>
+                <MudButton OnClick="OnCancel">Cancel</MudButton>
+                <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Update</MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+
+    private RoleItems? roleItem;
+
+    HashSet<string> SelectedValues { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            roleItem = await AppService.GetRoleByIdAsync(Id);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private void OnCancel()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async void OnSubmit()
+    {
+        if (roleItem == null)
+        {
+            return;
+        }
+
+        try
+        {
+            await AppService.UpdateRoleAsync(Id, roleItem);
+            MudDialog?.Close();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}

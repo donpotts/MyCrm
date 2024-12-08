@@ -1,0 +1,105 @@
+{
+  "template": "app",
+  "imports": {
+    "Volo.Abp.LeptonXLiteTheme": {
+      "version": "4.0.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.Account": {
+      "version": "9.0.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.OpenIddict": {
+      "version": "9.0.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.Identity": {
+      "version": "9.0.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.TenantManagement": {
+      "version": "9.0.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.SettingManagement": {
+      "version": "9.0.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.PermissionManagement": {
+      "version": "9.0.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.FeatureManagement": {
+      "version": "9.0.0",
+      "isInstalled": true
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "MyCrm.Application": {
+      "path": "src/MyCrm.Application/MyCrm.Application.abppkg",
+      "folder": "src"
+    },
+    "MyCrm.Application.Tests": {
+      "path": "test/MyCrm.Application.Tests/MyCrm.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "MyCrm.Domain.Shared": {
+      "path": "src/MyCrm.Domain.Shared/MyCrm.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "MyCrm.Application.Contracts": {
+      "path": "src/MyCrm.Application.Contracts/MyCrm.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "MyCrm.HttpApi": {
+      "path": "src/MyCrm.HttpApi/MyCrm.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "MyCrm.HttpApi.Client": {
+      "path": "src/MyCrm.HttpApi.Client/MyCrm.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "MyCrm.Web": {
+      "path": "src/MyCrm.Web/MyCrm.Web.abppkg",
+      "folder": "src"
+    },
+    "MyCrm.Web.Tests": {
+      "path": "test/MyCrm.Web.Tests/MyCrm.Web.Tests.abppkg",
+      "folder": "test"
+    },
+    "MyCrm.EntityFrameworkCore.Tests": {
+      "path": "test/MyCrm.EntityFrameworkCore.Tests/MyCrm.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "MyCrm.EntityFrameworkCore": {
+      "path": "src/MyCrm.EntityFrameworkCore/MyCrm.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "MyCrm.TestBase": {
+      "path": "test/MyCrm.TestBase/MyCrm.TestBase.abppkg",
+      "folder": "test"
+    },
+    "MyCrm.Domain.Tests": {
+      "path": "test/MyCrm.Domain.Tests/MyCrm.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "MyCrm.HttpApi.Client.ConsoleTestApp": {
+      "path": "test/MyCrm.HttpApi.Client.ConsoleTestApp/MyCrm.HttpApi.Client.ConsoleTestApp.abppkg",
+      "folder": "test"
+    },
+    "MyCrm.DbMigrator": {
+      "path": "src/MyCrm.DbMigrator/MyCrm.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "MyCrm.Domain": {
+      "path": "src/MyCrm.Domain/MyCrm.Domain.abppkg",
+      "folder": "src"
+    }
+  }
+}

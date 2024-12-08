@@ -1,0 +1,49 @@
+@page "/register"
+@inject AppService AppService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<PageTitle>Register</PageTitle>
+
+<div class="mb-3">
+    <MudText Typo="Typo.h3">Register</MudText>
+</div>
+
+<MudContainer MaxWidth="MaxWidth.Small">
+    <EditForm Model="@registerModel" OnValidSubmit="@OnValidSubmit">
+        <DataAnnotationsValidator />
+        <MudCard>
+            <MudCardContent>
+                <MudTextField @bind-Value="registerModel.UserName" For="@(() => registerModel.UserName)" Label="User Name" />
+                <MudTextField @bind-Value="registerModel.EmailAddress" For="@(() => registerModel.EmailAddress)" Label="Email" />
+                <MudTextField @bind-Value="registerModel.Password" For="@(() => registerModel.Password)" Label="Password" InputType="InputType.Password" />
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Register</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </EditForm>
+    <div class="my-3">
+        <MudText Align="Align.Center">
+            Already have an account? <MudLink href="login">Login</MudLink>
+        </MudText>
+    </div>
+</MudContainer>
+
+@code {
+    private RegisterAccount registerModel = new();
+
+    private async void OnValidSubmit()
+    {
+        try
+        {
+            await AppService.AccountRegisterAsync(registerModel.UserName, registerModel.EmailAddress, registerModel.Password, registerModel.AppName);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+
+        Navigation.NavigateTo("login");
+    }
+}

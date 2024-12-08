@@ -1,0 +1,185 @@
+@page "/address"
+@implements IDisposable
+@inject AppService AppService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject HttpClient HttpClient
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@attribute [Authorize]
+
+<PageTitle>Addresses</PageTitle>
+
+<div class="mb-3">
+    <MudText Typo="Typo.h3">Addresses</MudText>
+</div>
+
+<MudStack AlignItems="AlignItems.End" Class="mb-3">
+    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.AddCircleOutline" Color="Color.Primary" OnClick="@(e => OnAdd())">Add</MudButton>
+</MudStack>
+
+<MudDataGrid T="Address" @ref="grid" ServerData="(new Func<GridState<Address>, Task<GridData<Address>>>(ServerReload))" Filterable="true">
+    <Columns>
+        <PropertyColumn Property="x => x!.Id" Title="Id" />
+        <PropertyColumn Property="x => x!.Street" Title="Street" />
+        <PropertyColumn Property="x => x!.City" Title="City" />
+        <PropertyColumn Property="x => x!.State" Title="State" />
+        <PropertyColumn Property="x => x!.ZipCode" Title="ZipCode" />
+        <PropertyColumn Property="x => x!.Country" Title="Country" />
+        <PropertyColumn Property="x => x!.Photo" Title="Photo" />
+        <PropertyColumn Property="x => x!.Notes" Title="Notes" />
+        <TemplateColumn Style="width: 50px;" StickyRight="true" Sortable="false" Filterable="false">
+            <CellTemplate>
+                <MudStack Row="true">
+                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" Size="@Size.Small" Title="Edit" OnClick="@(e => OnEdit(context.Item!))" />
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Size="@Size.Small" Title="Delete" OnClick="@(e => OnDelete(context.Item!))" />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="Address" />
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+    private MudDataGrid<Address>? grid;
+    private string? _searchString;
+    private string? loadError;
+    private Address[] records;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Navigation.LocationChanged += LocationChanged;
+
+        await LoadDataAsync();
+    }
+
+    void IDisposable.Dispose()
+    {
+        Navigation.LocationChanged -= LocationChanged;
+    }
+
+    private async void LocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        records = null;
+        StateHasChanged();
+
+        await LoadDataAsync();
+        StateHasChanged();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            PagedResultDto<Address> res = await AppService.ListAddressesAsync("", 0, null);
+            records = res.Items.ToArray();
+        }
+        catch (Exception ex)
+        {
+            loadError = ex.Message;
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async Task<GridData<Address>> ServerReload(GridState<Address> state)
+    {
+        var top = state.PageSize;
+        var skip = state.Page * state.PageSize;
+        string? orderby = "";
+        var RecordCount = 0;
+
+        if (state.SortDefinitions.Any())
+        {
+            var firstSortDefinition = state.SortDefinitions.First();
+            var direction = firstSortDefinition.Descending;
+            if (direction)
+                orderby = firstSortDefinition.SortBy + " desc";
+            else
+                orderby = firstSortDefinition.SortBy;
+        }
+
+        try
+        {
+            PagedResultDto<Address> res = await AppService.ListAddressesAsync(orderby, skip, top);
+
+            records = res.Items.ToArray();
+            RecordCount = (int)res.TotalCount;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+        return new() { TotalItems = RecordCount, Items = records?.ToList() ?? Enumerable.Empty<Address>() };
+    }
+
+    private string GetAbsoluteUri(string uri)
+    {
+        if (!uri.StartsWith("/"))
+        {
+            return uri;
+        }
+
+        var baseUri = HttpClient.BaseAddress;
+
+        if (baseUri == null)
+        {
+            throw new Exception("Unable to determine base address");
+        }
+
+        Uri absolute = new(baseUri, uri);
+
+        return absolute.ToString();
+    }
+
+    private async void OnAdd()
+    {
+        DialogOptions dialogOptions = new() { FullWidth = true, CloseOnEscapeKey = true };
+
+        var result = await DialogService.Show<AddAddress>("Add Address", dialogOptions).Result;
+
+        if (!result.Canceled)
+        {
+            await (grid?.ReloadServerData() ?? Task.CompletedTask);
+        }
+    }
+
+    private async void OnEdit(Address record)
+    {
+        Console.WriteLine("record.Id=" + record.Id);
+
+        DialogParameters<UpdateAddress> dialogParams = new() { { x => x.Id, record.Id! } };
+        DialogOptions dialogOptions = new() { FullWidth = true, CloseOnEscapeKey = true };
+
+        var result = await DialogService.Show<UpdateAddress>("Update Address", dialogParams, dialogOptions).Result;
+
+        if (!result.Canceled)
+        {
+            await (grid?.ReloadServerData() ?? Task.CompletedTask);
+        }
+    }
+
+    private async void OnDelete(Address record)
+    {
+        var result = await DialogService.ShowMessageBox(
+            "Warning",
+            "Are you sure you want to delete this record?",
+            "Delete",
+            "Cancel");
+
+        if (result.GetValueOrDefault(false))
+        {
+            try
+            {
+                await AppService.DeleteAddressAsync(record.Id!);
+                await (grid?.ReloadServerData() ?? Task.CompletedTask);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(ex.Message, Severity.Error);
+            }
+        }
+    }
+}

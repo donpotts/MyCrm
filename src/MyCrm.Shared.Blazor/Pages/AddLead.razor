@@ -1,0 +1,138 @@
+@inject AppService AppService
+@inject ISnackbar Snackbar
+@inject HttpClient HttpClient
+
+<EditForm Model="@record" OnValidSubmit="@OnSubmit">
+    <DataAnnotationsValidator />
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">Add Lead</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudNumericField @bind-Value="record.Id" For="@(() => record.Id)" Label="Id" ReadOnly="true" />
+            <MudTextField @bind-Value="record.Source" For="@(() => record.Source)" Label="Source" />
+            <MudTextField @bind-Value="record.Status" For="@(() => record.Status)" Label="Status" />
+            <MudTextField @bind-Value="record.PotentialValue" For="@(() => record.PotentialValue)" Label="PotentialValue" />
+            <MudTextField @bind-Value="record.Photo" For="@(() => record.Photo)" Label="Photo" />
+            <MudTextField @bind-Value="record.Notes" For="@(() => record.Notes)" Label="Notes" />
+            @if (addressArray != null)
+            {
+                <MudSelect @bind-Value="record.Address.Id" For="@(() => record.Address.Id)" Label="Address" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem T="long" Value="0" />
+                    @foreach (var address in addressArray ?? Enumerable.Empty<Address>())
+                    {
+                        <MudSelectItem Value="@address.Id">@address.City</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+            @if (contactArray != null)
+            {
+                <MudSelect @bind-Value="record.Contact.Id" For="@(() => record.Contact.Id)" Label="Contact" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem T="long" Value="0" />
+                    @foreach (var contact in contactArray ?? Enumerable.Empty<Contact>())
+                    {
+                        <MudSelectItem Value="@contact.Id">@contact.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+            @if (opportunityArray != null)
+            {
+                <MudSelect @bind-Value="record.Opportunity.Id" For="@(() => record.Opportunity.Id)" Label="Opportunity" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem T="long" Value="0" />
+                    @foreach (var opportunity in opportunityArray ?? Enumerable.Empty<Opportunity>())
+                    {
+                        <MudSelectItem Value="@opportunity.Id">@opportunity.Stage</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="OnCancel">Cancel</MudButton>
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Add</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+
+    private Lead record = new();
+    private Address[] addressArray;
+    private Contact[] contactArray;
+    private Opportunity[] opportunityArray;
+
+    private string GetAbsoluteUri(string uri)
+    {
+        if (!uri.StartsWith("/"))
+        {
+            return uri;
+        }
+
+        var baseUri = HttpClient.BaseAddress;
+
+        if (baseUri == null)
+        {
+            throw new Exception("Unable to determine base address");
+        }
+
+        Uri absolute = new(baseUri, uri);
+
+        return absolute.ToString();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        PagedResultDto<Address> resAddress = await AppService.ListAddressesAsync("", 0, null);
+        addressArray = resAddress.Items.ToArray();
+        if (record.Address == null)
+        {
+            record.AddressId = 0;
+            record.Address = new Address();
+        }
+
+
+        PagedResultDto<Contact> resContact = await AppService.ListContactsAsync("", 0, null);
+        contactArray = resContact.Items.ToArray();
+        if (record.Contact == null)
+        {
+            record.ContactId = 0;
+            record.Contact = new Contact();
+        }
+
+
+        PagedResultDto<Opportunity> resOpportunity = await AppService.ListOpportunitiesAsync("", 0, null);
+        opportunityArray = resOpportunity.Items.ToArray();
+        if (record.Opportunity == null)
+        {
+            record.OpportunityId = 0;
+            record.Opportunity = new Opportunity();
+        }
+    }
+
+    private void OnCancel()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async void OnSubmit()
+    {
+        try
+        {
+            if (record.Address.Id != null)
+                record.AddressId = record.Address.Id;
+            if (record.Contact.Id != null)
+                record.ContactId = record.Contact.Id;
+            if (record.Opportunity.Id != null)
+                record.OpportunityId = record.Opportunity.Id;
+            await AppService.InsertLeadAsync(record);
+            MudDialog?.Close();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}

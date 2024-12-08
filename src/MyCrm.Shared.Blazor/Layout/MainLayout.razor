@@ -1,0 +1,13 @@
+@inherits LayoutComponentBase
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <NavMenu />
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="my-3">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>

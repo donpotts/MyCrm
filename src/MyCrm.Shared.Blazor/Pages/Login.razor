@@ -1,0 +1,61 @@
+@page "/login"
+@using MyCrm.Shared.Blazor.Authentication
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<PageTitle>Login</PageTitle>
+
+<div class="mb-3">
+    <MudText Typo="Typo.h3">Login</MudText>
+</div>
+
+<MudContainer MaxWidth="MaxWidth.Small">
+    <EditForm Model="@loginModel" OnValidSubmit="@HandleValidSubmitAsync">
+        <DataAnnotationsValidator />
+        <MudCard>
+            <MudCardContent>
+                <MudTextField @bind-Value="loginModel.UserName" For="@(() => loginModel.UserName)" Label="User Name" />
+                <MudTextField @bind-Value="loginModel.Password" For="@(() => loginModel.Password)" Label="Password" InputType="InputType.Password" />
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Login</MudButton>
+            </MudCardActions>
+        </MudCard>
+        @if (!string.IsNullOrEmpty(loginError))
+        {
+            <div class="mb-3 text-danger">@loginError</div>
+        }
+    </EditForm>
+    <div class="my-3">
+        <MudText Align="Align.Center">
+            Don't have an account yet? <MudLink href="register">Sign up</MudLink>
+        </MudText>
+    </div>
+</MudContainer>
+
+@code {
+    private LoginModel loginModel = new();
+    private string? loginError;
+
+    private async Task HandleValidSubmitAsync()
+    {
+        loginError = null;
+        StateHasChanged();
+
+        try
+        {
+            await ((JwtAuthenticationStateProvider)AuthenticationStateProvider)
+                .LoginAsync(loginModel);
+
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+            return;
+        }
+
+        Navigation.NavigateTo("");
+    }
+}

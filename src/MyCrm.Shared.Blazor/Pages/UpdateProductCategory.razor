@@ -1,0 +1,115 @@
+@inject AppService AppService
+@inject ISnackbar Snackbar
+@inject HttpClient HttpClient
+
+@if (record == null)
+{
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">Update ProductCategory</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudText>Loading...</MudText>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="OnCancel">Cancel</MudButton>
+            <MudButton Color="Color.Primary" Disabled="true">Update</MudButton>
+        </DialogActions>
+    </MudDialog>
+}
+else
+{
+    <EditForm Model="@record" OnValidSubmit="@OnSubmit">
+        <DataAnnotationsValidator />
+        <MudDialog>
+            <TitleContent>
+                <MudText Typo="Typo.h6">Update ProductCategory</MudText>
+            </TitleContent>
+            <DialogContent>
+                <MudNumericField @bind-Value="record.Id" For="@(() => record.Id)" Label="Id" ReadOnly="true" />
+                <MudTextField @bind-Value="record.Name" For="@(() => record.Name)" Label="Name" />
+                <MudTextField @bind-Value="record.Description" For="@(() => record.Description)" Label="Description" />
+                <MudTextField @bind-Value="record.Icon" For="@(() => record.Icon)" Label="Icon" />
+                <MudTextField @bind-Value="record.TaxRate" For="@(() => record.TaxRate)" Label="TaxRate" />
+                <MudTextField @bind-Value="record.Notes" For="@(() => record.Notes)" Label="Notes" />
+
+
+
+
+            </DialogContent>
+            <DialogActions>
+                <MudButton OnClick="OnCancel">Cancel</MudButton>
+                <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Update</MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public long Id { get; set; }
+
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+
+    private ProductCategory? record;
+
+
+    private string GetAbsoluteUri(string uri)
+    {
+        if (!uri.StartsWith("/"))
+        {
+            return uri;
+        }
+
+        var baseUri = HttpClient.BaseAddress;
+
+        if (baseUri == null)
+        {
+            throw new Exception("Unable to determine base address");
+        }
+
+        Uri absolute = new(baseUri, uri);
+
+        return absolute.ToString();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            record = await AppService.GetProductCategoryByIdAsync(Id);
+
+
+
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private void OnCancel()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async void OnSubmit()
+    {
+        if (record == null)
+        {
+            return;
+        }
+
+        try
+        {
+
+            await AppService.UpdateProductCategoryAsync(Id, record);
+            MudDialog?.Close();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}

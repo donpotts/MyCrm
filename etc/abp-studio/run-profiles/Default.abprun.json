@@ -1,0 +1,13 @@
+﻿{
+  "applications": {
+    "MyCrm.Web": {
+      "type": "dotnet-project",
+      "launchUrl": "https://localhost:44367",
+      "path": "../../../src/MyCrm.Web/MyCrm.Web.csproj",
+      "kubernetesService": ".*-web$",
+      "execution": {
+        "order": 2
+      }
+    }
+  }
+}

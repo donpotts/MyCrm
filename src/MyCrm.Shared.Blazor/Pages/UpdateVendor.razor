@@ -1,0 +1,176 @@
+@inject AppService AppService
+@inject ISnackbar Snackbar
+@inject HttpClient HttpClient
+
+@if (record == null)
+{
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">Update Vendor</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudText>Loading...</MudText>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="OnCancel">Cancel</MudButton>
+            <MudButton Color="Color.Primary" Disabled="true">Update</MudButton>
+        </DialogActions>
+    </MudDialog>
+}
+else
+{
+    <EditForm Model="@record" OnValidSubmit="@OnSubmit">
+        <DataAnnotationsValidator />
+        <MudDialog>
+            <TitleContent>
+                <MudText Typo="Typo.h6">Update Vendor</MudText>
+            </TitleContent>
+            <DialogContent>
+                <MudNumericField @bind-Value="record.Id" For="@(() => record.Id)" Label="Id" ReadOnly="true" />
+                <MudTextField @bind-Value="record.Name" For="@(() => record.Name)" Label="Name" />
+                <MudTextField @bind-Value="record.ContactName" For="@(() => record.ContactName)" Label="ContactName" />
+                <MudTextField @bind-Value="record.Phone" For="@(() => record.Phone)" Label="Phone" />
+                <MudTextField @bind-Value="record.Email" For="@(() => record.Email)" Label="Email" />
+                <MudTextField @bind-Value="record.Logo" For="@(() => record.Logo)" Label="Logo" />
+                <MudTextField @bind-Value="record.Notes" For="@(() => record.Notes)" Label="Notes" />
+
+                @if (addressArray != null)
+                {
+                    <MudSelect @bind-Value="record.Address.Id" For="@(() => record.Address.Id)" Label="Address" AnchorOrigin="Origin.BottomCenter">
+                        <MudSelectItem T="long" Value="0" />
+                        @foreach (var address in addressArray ?? Enumerable.Empty<Address>())
+                        {
+                            <MudSelectItem Value="@address.Id">@address.City</MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+                @if (serviceArray != null)
+                {
+                    <MudSelect @bind-Value="record.Service.Id" For="@(() => record.Service.Id)" Label="Service" AnchorOrigin="Origin.BottomCenter">
+                        <MudSelectItem T="long" Value="0" />
+                        @foreach (var service in serviceArray ?? Enumerable.Empty<Service>())
+                        {
+                            <MudSelectItem Value="@service.Id">@service.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+                @if (productArray != null)
+                {
+                    <MudSelect @bind-Value="record.Product.Id" For="@(() => record.Product.Id)" Label="Product" AnchorOrigin="Origin.BottomCenter">
+                        <MudSelectItem T="long" Value="0" />
+                        @foreach (var product in productArray ?? Enumerable.Empty<Product>())
+                        {
+                            <MudSelectItem Value="@product.Id">@product.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+
+
+
+            </DialogContent>
+            <DialogActions>
+                <MudButton OnClick="OnCancel">Cancel</MudButton>
+                <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Update</MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public long Id { get; set; }
+
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+
+    private Vendor? record;
+
+    private Address[] addressArray;
+    private Service[] serviceArray;
+    private Product[] productArray;
+
+    private string GetAbsoluteUri(string uri)
+    {
+        if (!uri.StartsWith("/"))
+        {
+            return uri;
+        }
+
+        var baseUri = HttpClient.BaseAddress;
+
+        if (baseUri == null)
+        {
+            throw new Exception("Unable to determine base address");
+        }
+
+        Uri absolute = new(baseUri, uri);
+
+        return absolute.ToString();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            record = await AppService.GetVendorByIdAsync(Id);
+
+
+
+            PagedResultDto<Address> resAddress = await AppService.ListAddressesAsync("City ASC", 0, null);
+            addressArray = resAddress.Items.ToArray();
+            if (record.Address == null)
+            {
+                record.AddressId = 0;
+                record.Address = new Address();
+            }
+            PagedResultDto<Service> resService = await AppService.ListServicesAsync("Name ASC", 0, null);
+            serviceArray = resService.Items.ToArray();
+            if (record.Service == null)
+            {
+                record.ServiceId = 0;
+                record.Service = new Service();
+            }
+            PagedResultDto<Product> resProduct = await AppService.ListProductsAsync("Name ASC", 0, null);
+            productArray = resProduct.Items.ToArray();
+            if (record.Product == null)
+            {
+                record.ProductId = 0;
+                record.Product = new Product();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private void OnCancel()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async void OnSubmit()
+    {
+        if (record == null)
+        {
+            return;
+        }
+
+        try
+        {
+            if (record.Address.Id != null)
+                record.AddressId = record.Address.Id;
+            if (record.Service.Id != null)
+                record.ServiceId = record.Service.Id;
+            if (record.Product.Id != null)
+                record.ProductId = record.Product.Id;
+
+            await AppService.UpdateVendorAsync(Id, record);
+            MudDialog?.Close();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}

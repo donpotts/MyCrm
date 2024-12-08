@@ -1,0 +1,93 @@
+@page "/users/{Id:alpha}"
+@inject AppService AppService
+@inject ISnackbar Snackbar
+@inject HttpClient HttpClient
+@inject NavigationManager Navigation
+@attribute [Authorize]
+
+<PageTitle>Update User</PageTitle>
+
+@if (record == null)
+{
+    <MudDialog DefaultFocus="DefaultFocus.Element">
+        <TitleContent>
+            <MudText Typo="Typo.h6">Update User</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudText>Loading...</MudText>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="OnCancel">Cancel</MudButton>
+            <MudButton Color="Color.Primary" Disabled="true">Update</MudButton>
+        </DialogActions>
+    </MudDialog>
+}
+else
+{
+    <EditForm Model="@record" OnSubmit="@OnSubmit">
+        <DataAnnotationsValidator />
+        <MudDialog DefaultFocus="DefaultFocus.Element">
+            <TitleContent>
+                <MudText Typo="Typo.h6">Update User</MudText>
+            </TitleContent>
+            <DialogContent>
+                <MudTextField @bind-Value="record.UserName" For="@(() => record.UserName)" Label="User Name" ReadOnly="true" />
+                <MudTextField @bind-Value="record.Password" For="@(() => record.Password)" Label="Password" />
+                <MudTextField @bind-Value="record.Name" For="@(() => record.Name)" Label="First Name" />
+                <MudTextField @bind-Value="record.Surname" For="@(() => record.Surname)" Label="Last Name" />
+                <MudTextField @bind-Value="record.Email" For="@(() => record.Email)" Label="Email" />
+                <MudTextField @bind-Value="record.PhoneNumber" For="@(() => record.PhoneNumber)" Label="Phone Number" />
+                <MudCheckBox T="bool" @bind-Value="record.IsActive" For="@(() => record.IsActive)" Label="Is Active" />
+            </DialogContent>
+            <DialogActions>
+                <MudButton OnClick="OnCancel">Cancel</MudButton>
+                <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Update</MudButton>
+            </DialogActions>
+        </MudDialog>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+
+    private User? record;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            record = await AppService.GetUserByIdAsync(Id);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private void OnCancel()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async void OnSubmit()
+    {
+        if (record == null)
+        {
+            return;
+        }
+
+        try
+        {
+            await AppService.UpdateUserAsync(Id, record);
+            MudDialog?.Close();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}

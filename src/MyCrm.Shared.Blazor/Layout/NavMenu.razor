@@ -1,0 +1,215 @@
+@using System.Security.Claims
+@using MyCrm.Shared.Blazor.Components.Themes
+@inject AppService AppService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IStorageService LocalStorageService
+
+<MudThemeProvider Theme="_theme" IsDarkMode="_isDarkMode" />
+<MudAppBar Color="Color.Inherit">
+    @if (!CheckedVariable)
+    {
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+    }
+    <MudText Class="d-flex mr-8">MyCrm</MudText>
+    <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+        <MudTooltip Text="@tooltipText">    
+            <MudSwitch T="bool" Class="d-flex justify-content-start " Value="CheckedVariable" ValueChanged="@(e => OnSwitchValueChanged((bool)e))" Color="Color.Success" UnCheckedColor="Color.Secondary" />
+        </MudTooltip>
+    </MudHidden>
+    <MudSpacer />
+    <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true" IsHiddenChanged="ScreenSizeChanged">
+    @if (CheckedVariable)
+    {
+        <MudToolBar>
+            <MudLink Href="/" Class="d-flex px-4" Color="Color.Inherit">Home</MudLink>
+            <AuthorizeView>
+                <MudLink Href="/Customer" Class="d-flex px-4" Color="Color.Inherit">Customers</MudLink>
+                <MudLink Href="/Address" Class="d-flex px-4" Color="Color.Inherit">Addresses</MudLink>
+                <MudLink Href="/ProductCategory" Class="d-flex px-4" Color="Color.Inherit">ProductCategories</MudLink>
+                <MudLink Href="/ServiceCategory" Class="d-flex px-4" Color="Color.Inherit">ServiceCategories</MudLink>
+                <MudLink Href="/Contact" Class="d-flex px-4" Color="Color.Inherit">Contacts</MudLink>
+                <MudLink Href="/Opportunity" Class="d-flex px-4" Color="Color.Inherit">Opportunities</MudLink>
+                <MudLink Href="/Lead" Class="d-flex px-4" Color="Color.Inherit">Leads</MudLink>
+                <MudLink Href="/Product" Class="d-flex px-4" Color="Color.Inherit">Products</MudLink>
+                <MudLink Href="/Service" Class="d-flex px-4" Color="Color.Inherit">Services</MudLink>
+                <MudLink Href="/Sale" Class="d-flex px-4" Color="Color.Inherit">Sales</MudLink>
+                <MudLink Href="/Vendor" Class="d-flex px-4" Color="Color.Inherit">Vendors</MudLink>
+                <MudLink Href="/SupportCase" Class="d-flex px-4" Color="Color.Inherit">SupportCases</MudLink>
+                <MudLink Href="/TodoTask" Class="d-flex px-4" Color="Color.Inherit">TodoTasks</MudLink>
+                <MudLink Href="/Reward" Class="d-flex px-4" Color="Color.Inherit">Rewards</MudLink>
+            </AuthorizeView>
+            <AuthorizeView Roles="admin">
+                <MudMenu StartIcon="@Icons.Material.Outlined.Settings" Color="Color.Inherit"  EndIcon="@Icons.Material.Filled.KeyboardArrowDown" Label="Admin">
+                    <MudLink Href="/roles" Class="d-flex px-4" Color="Color.Inherit">Roles</MudLink>
+                    <MudLink Href="/users" Class="d-flex px-4" Color="Color.Inherit">Users</MudLink>
+                </MudMenu>
+            </AuthorizeView>
+            <AuthorizeView>
+                <Authorized>
+                    <MudLink Href="/account/changePassword" Class="d-flex px-4" Color="Color.Inherit">Change Password</MudLink>
+                    <MudLink Href="/logout" Class="d-flex px-4" Color="Color.Inherit">Logout (@context.User.Identity!.Name)</MudLink>
+                </Authorized>
+                <NotAuthorized>
+                    <MudLink Href="/login" Class="d-flex px-4" Color="Color.Inherit">Login</MudLink>
+                </NotAuthorized>
+            </AuthorizeView>
+        </MudToolBar>
+    }
+    </MudHidden>
+    <ThemesMenu @bind-ThemingDrawerOpen="_themingDrawerOpen"
+            ThemeManager="_themeManager"
+            ThemeManagerChanged="ThemeManagerChanged" />
+
+    <MudLink OnClick="@(() => _themingDrawerOpen = true)" Color="Color.Inherit">
+        <MudTooltip Arrow="true"
+                Placement="Placement.Left"
+                Text="Themes">
+        <MudIcon Icon="@Icons.Material.Outlined.Brush"
+                Color="Color.Inherit"
+                Class="mr-5"/>
+        </MudTooltip>
+    </MudLink>
+    <MudLink Href="https://www.donpotts.com/" Color="Color.Inherit">About</MudLink>
+</MudAppBar>
+@if (!CheckedVariable)
+{
+    <MudDrawer @bind-Open="drawerOpen" ClipMode="DrawerClipMode.Docked" Color="Color.Inherit">
+        <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
+        <AuthorizeView>
+            <MudNavLink Href="/Customer" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PeopleAlt">Customers</MudNavLink>
+            <MudNavLink Href="/Address" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HomeWork">Addresses</MudNavLink>
+            <MudNavLink Href="/ProductCategory" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Category">ProductCategories</MudNavLink>
+            <MudNavLink Href="/ServiceCategory" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HomeRepairService">ServiceCategories</MudNavLink>
+            <MudNavLink Href="/Contact" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.ContactMail">Contacts</MudNavLink>
+            <MudNavLink Href="/Opportunity" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Newspaper">Opportunities</MudNavLink>
+            <MudNavLink Href="/Lead" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Leaderboard">Leads</MudNavLink>
+            <MudNavLink Href="/Product" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.ProductionQuantityLimits">Products</MudNavLink>
+            <MudNavLink Href="/Service" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.TableChart">Services</MudNavLink>
+            <MudNavLink Href="/Sale" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.PointOfSale">Sales</MudNavLink>
+            <MudNavLink Href="/Vendor" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Store">Vendors</MudNavLink>
+            <MudNavLink Href="/SupportCase" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Support">SupportCases</MudNavLink>
+            <MudNavLink Href="/TodoTask" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Today">TodoTasks</MudNavLink>
+            <MudNavLink Href="/Reward" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Money">Rewards</MudNavLink>
+        </AuthorizeView>
+        <AuthorizeView Roles="admin">
+            <MudNavGroup Title="Admin" Expanded="adminMenu" Color="Color.Inherit" Icon="@Icons.Material.Outlined.Settings">
+                <MudNavLink Href="/roles" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.RollerShades">Roles</MudNavLink>
+                <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.People">Users</MudNavLink>
+            </MudNavGroup>
+        </AuthorizeView>
+        <AuthorizeView>
+            <Authorized>
+                <MudNavLink Href="/account/changePassword" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Edit">Change Password</MudNavLink>
+                <MudNavLink Href="/logout" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Logout">Logout (@context.User.Identity!.Name)</MudNavLink>
+            </Authorized>
+            <NotAuthorized>
+                <MudNavLink Href="/login" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Login">Login</MudNavLink>
+            </NotAuthorized>
+        </AuthorizeView>
+    </MudDrawer>
+}
+
+@code {
+    private bool drawerOpen = true;
+    bool _dark = true;
+    private bool adminMenu = false;
+    private bool isDarkMode;
+    private MudThemeProvider? mudThemeProvider;
+    private bool isSwitchChecked;
+    private bool CheckedVariable;
+    private string tooltipText => isSwitchChecked ? "Top Menu is ON" : "Top Menu is OFF";
+
+    private AuthenticationState authenticationState;
+
+    private bool _themingDrawerOpen;
+
+    private MudTheme _theme = new();
+    private bool _isDarkMode = false;
+
+    private ThemeManagerModel _themeManager = new()
+    {
+        IsDarkMode = false,
+        PrimaryColor = "#594AE2",
+    };
+
+    private async Task UpdateThemeManagerLocalStorage()
+    {
+        await LocalStorageService.SetAsync("themeManager", _themeManager);
+    }
+
+    private async Task ThemeManagerChanged(ThemeManagerModel themeManager)
+    {
+        _themeManager = themeManager;
+
+        _isDarkMode = _themeManager.IsDarkMode;
+
+        _theme = new MudTheme()
+        {
+            PaletteLight = new PaletteLight()
+            {
+                Primary = _themeManager.PrimaryColor,
+                AppbarBackground = _themeManager.PrimaryColor,
+            },
+            PaletteDark = new PaletteDark()
+            {
+                Primary = _themeManager.PrimaryColor,
+            }
+        };
+
+        await UpdateThemeManagerLocalStorage();
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _themeManager = await LocalStorageService.GetAsync<ThemeManagerModel>("themeManager")
+            ?? new()
+            {
+                IsDarkMode = false,
+                PrimaryColor = "#594AE2",
+            };
+
+        await ThemeManagerChanged(_themeManager);
+    }
+
+    private void DrawerToggle()
+    {
+        drawerOpen = !drawerOpen;
+    }
+
+    public void ScreenSizeChanged(bool hidden)
+    {
+        if (hidden)
+            CheckedVariable = false;
+        else
+            CheckedVariable = isSwitchChecked;
+    }
+
+    public void OnSwitchValueChanged(bool checkedValue)
+    {
+        CheckedVariable = checkedValue;
+        if (checkedValue)
+            isSwitchChecked = true;
+        else
+            isSwitchChecked = false;
+    }
+                                                        
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && mudThemeProvider != null)
+        {
+            isDarkMode = await mudThemeProvider.GetSystemPreference();
+            StateHasChanged();
+
+            await mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
+        }
+    }
+
+    protected Task OnSystemPreferenceChanged(bool isDarkMode)
+    {
+        this.isDarkMode = isDarkMode;
+        StateHasChanged();
+
+        return Task.CompletedTask;
+    }
+}

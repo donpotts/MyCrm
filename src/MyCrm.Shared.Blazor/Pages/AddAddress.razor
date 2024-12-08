@@ -1,0 +1,75 @@
+@inject AppService AppService
+@inject ISnackbar Snackbar
+@inject HttpClient HttpClient
+
+<EditForm Model="@record" OnValidSubmit="@OnSubmit">
+    <DataAnnotationsValidator />
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">Add Address</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudNumericField @bind-Value="record.Id" For="@(() => record.Id)" Label="Id" ReadOnly="true" />
+                <MudTextField @bind-Value="record.Street" For="@(() => record.Street)" Label="Street" />
+                <MudTextField @bind-Value="record.City" For="@(() => record.City)" Label="City" />
+                <MudTextField @bind-Value="record.State" For="@(() => record.State)" Label="State" />
+                <MudTextField @bind-Value="record.ZipCode" For="@(() => record.ZipCode)" Label="ZipCode" />
+                <MudTextField @bind-Value="record.Country" For="@(() => record.Country)" Label="Country" />
+                <MudTextField @bind-Value="record.Photo" For="@(() => record.Photo)" Label="Photo" />
+                <MudTextField @bind-Value="record.Notes" For="@(() => record.Notes)" Label="Notes" />
+            </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="OnCancel">Cancel</MudButton>
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Add</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+
+    private Address record = new();
+
+    private string GetAbsoluteUri(string uri)
+    {
+        if (!uri.StartsWith("/"))
+        {
+            return uri;
+        }
+
+        var baseUri = HttpClient.BaseAddress;
+
+        if (baseUri == null)
+        {
+            throw new Exception("Unable to determine base address");
+        }
+
+        Uri absolute = new(baseUri, uri);
+
+        return absolute.ToString();
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    private void OnCancel()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async void OnSubmit()
+    {
+        try
+        {
+                    await AppService.InsertAddressAsync(record);
+            MudDialog?.Close();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}

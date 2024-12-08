@@ -1,0 +1,147 @@
+@inject AppService AppService
+@inject ISnackbar Snackbar
+@inject HttpClient HttpClient
+
+<EditForm Model="@record" OnValidSubmit="@OnSubmit">
+    <DataAnnotationsValidator />
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">Add Vendor</MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudNumericField @bind-Value="record.Id" For="@(() => record.Id)" Label="Id" ReadOnly="true" />
+            <MudTextField @bind-Value="record.Name" For="@(() => record.Name)" Label="Name" />
+            <MudTextField @bind-Value="record.ContactName" For="@(() => record.ContactName)" Label="ContactName" />
+            <MudTextField @bind-Value="record.Phone" For="@(() => record.Phone)" Label="Phone" />
+            <MudTextField @bind-Value="record.Email" For="@(() => record.Email)" Label="Email" />
+            <MudTextField @bind-Value="record.Logo" For="@(() => record.Logo)" Label="Logo" />
+            <MudTextField @bind-Value="record.Notes" For="@(() => record.Notes)" Label="Notes" />
+            @if (addressArray != null)
+            {
+                <MudSelect @bind-Value="record.Address.Id" For="@(() => record.Address.Id)" Label="Address" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem T="long" Value="0" />
+                    @foreach (var address in addressArray ?? Enumerable.Empty<Address>())
+                    {
+                        <MudSelectItem Value="@address.Id">@address.City</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+            @if (serviceArray != null)
+            {
+                <MudSelect @bind-Value="record.Service.Id" For="@(() => record.Service.Id)" Label="Service" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem T="long" Value="0" />
+                    @foreach (var service in serviceArray ?? Enumerable.Empty<Service>())
+                    {
+                        <MudSelectItem Value="@service.Id">@service.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+            @if (productArray != null)
+            {
+                <MudSelect @bind-Value="record.Product.Id" For="@(() => record.Product.Id)" Label="Product" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem T="long" Value="0" />
+                    @foreach (var product in productArray ?? Enumerable.Empty<Product>())
+                    {
+                        <MudSelectItem Value="@product.Id">@product.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="OnCancel">Cancel</MudButton>
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Add</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+
+    private Vendor record = new();
+
+    private Address[] addressArray;
+    private Service[] serviceArray;
+    private Product[] productArray;
+
+
+
+    private string GetAbsoluteUri(string uri)
+    {
+        if (!uri.StartsWith("/"))
+        {
+            return uri;
+        }
+
+        var baseUri = HttpClient.BaseAddress;
+
+        if (baseUri == null)
+        {
+            throw new Exception("Unable to determine base address");
+        }
+
+        Uri absolute = new(baseUri, uri);
+
+        return absolute.ToString();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+
+
+        PagedResultDto<Address> resAddress = await AppService.ListAddressesAsync("", 0, null);
+        addressArray = resAddress.Items.ToArray();
+        if (record.Address == null)
+        {
+            record.AddressId = 0;
+            record.Address = new Address();
+        }
+
+
+        PagedResultDto<Service> resService = await AppService.ListServicesAsync("", 0, null);
+        serviceArray = resService.Items.ToArray();
+        if (record.Service == null)
+        {
+            record.ServiceId = 0;
+            record.Service = new Service();
+        }
+
+
+        PagedResultDto<Product> resProduct = await AppService.ListProductsAsync("", 0, null);
+        productArray = resProduct.Items.ToArray();
+        if (record.Product == null)
+        {
+            record.ProductId = 0;
+            record.Product = new Product();
+        }
+
+
+
+    }
+
+    private void OnCancel()
+    {
+        MudDialog?.Cancel();
+    }
+
+    private async void OnSubmit()
+    {
+        try
+        {
+            if (record.Address.Id != null)
+                record.AddressId = record.Address.Id;
+            if (record.Service.Id != null)
+                record.ServiceId = record.Service.Id;
+            if (record.Product.Id != null)
+                record.ProductId = record.Product.Id;
+            await AppService.InsertVendorAsync(record);
+            MudDialog?.Close();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}

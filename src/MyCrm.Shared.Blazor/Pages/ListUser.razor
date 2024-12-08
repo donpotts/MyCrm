@@ -1,0 +1,165 @@
+@page "/users"
+@inject AppService AppService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject HttpClient HttpClient
+@inject NavigationManager Navigation
+@attribute [Authorize]
+
+<PageTitle>List Users</PageTitle>
+
+@if (users == null)
+{
+    @if (loadError == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <p class="text-danger">@loadError</p>
+    }
+}
+else
+{
+    <div class="mb-3">
+        <MudText Typo="Typo.h3">Users</MudText>
+    </div>
+
+    <MudStack AlignItems="AlignItems.End" Class="mb-3">
+        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.AddCircleOutline" Color="Color.Primary" OnClick="@(e => OnAdd())">Add</MudButton>
+    </MudStack>
+
+    <MudDataGrid T="User" @ref="grid" ServerData="(new Func<GridState<User>, Task<GridData<User>>>(ServerReload))" Filterable="false">
+        <Columns>
+            <PropertyColumn Property="x => x!.UserName" Title="User Name" />
+            <PropertyColumn Property="x => x!.Name" Title="First Name" />
+            <PropertyColumn Property="x => x!.Surname" Title="Last Name" />
+            <PropertyColumn Property="x => x!.Email" Title="Email" />
+            <PropertyColumn Property="x => x!.PhoneNumber" Title="Phone Number" />
+            <TemplateColumn Title="Is Active" Sortable="false">
+                <CellTemplate>
+                    <MudCheckBox T="bool" @bind-Checked="context.Item.IsActive" Disabled="true" />
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn StickyRight="true" Sortable="false" Filterable="false">
+                <CellTemplate>
+                    <MudStack Row="true">
+                        <MudIconButton Icon="@Icons.Material.Outlined.Badge" Size="@Size.Small" Title="Roles" OnClick="@(e => OnModifyRoles(context.Item!))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" Size="@Size.Small" Title="Edit" OnClick="@(e => OnEdit(context.Item!))" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Size="@Size.Small" Title="Delete" OnClick="@(e => OnDelete(context.Item!))" />
+                    </MudStack>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="User" />
+        </PagerContent>
+    </MudDataGrid>
+}
+
+@code {
+    private MudDataGrid<User>? grid;
+    private string? loadError;
+
+    private User[]? users;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            PagedResultDto<User> res = await AppService.ListUsersAsync("", 0, null);
+            users = res.Items.ToArray();
+        }
+        catch (Exception ex)
+        {
+            loadError = ex.Message;
+        }
+    }
+
+    private async Task<GridData<User>> ServerReload(GridState<User> state)
+    {
+        var top = state.PageSize;
+        var skip = state.Page * state.PageSize;
+        string? orderby = "";
+        var RecordCount = 0;
+
+        if (state.SortDefinitions.Any())
+        {
+            var firstSortDefinition = state.SortDefinitions.First();
+            var direction = firstSortDefinition.Descending;
+            if (direction)
+                orderby = firstSortDefinition.SortBy + " desc";
+            else
+                orderby = firstSortDefinition.SortBy;
+        }
+        try
+        {
+            PagedResultDto<User> res = await AppService.ListUsersAsync(orderby, skip, top);
+            users = res.Items.ToArray();
+            RecordCount = (int)res.TotalCount;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+        return new() { TotalItems = RecordCount, Items = users?.ToList() ?? Enumerable.Empty<User>() };
+    }
+
+    private async void OnAdd()
+    {
+        DialogOptions dialogOptions = new() { FullWidth = true, CloseOnEscapeKey = true };
+
+        var result = await DialogService.Show<AddUser>("Add User", dialogOptions).Result;
+
+        if (!result.Canceled)
+        {
+            await (grid?.ReloadServerData() ?? Task.CompletedTask);
+        }
+    }
+
+    private async void OnModifyRoles(User record)
+    {
+        DialogParameters<ModifyRoles> dialogParams = new() { { x => x.Id, record.Id } };
+        DialogOptions dialogOptions = new() { FullWidth = true, CloseOnEscapeKey = true };
+
+        await DialogService.Show<ModifyRoles>("Modify Roles", dialogParams, dialogOptions).Result;
+    }
+
+    private async void OnEdit(User record)
+    {
+        DialogParameters<UpdateUser> dialogParams = new() { { x => x.Id, record.Id } };
+        DialogOptions dialogOptions = new() { FullWidth = true, CloseOnEscapeKey = true };
+
+        var dialog = await DialogService.ShowAsync<UpdateUser>("Update User", dialogParams, dialogOptions);
+        await Task.Delay(1000);  // Force UI rerender
+        StateHasChanged();
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await (grid?.ReloadServerData() ?? Task.CompletedTask);
+        }
+    }
+
+    private async void OnDelete(User record)
+    {
+        var result = await DialogService.ShowMessageBox(
+            "Warning",
+            "Are you sure you want to delete this record?",
+            "Delete",
+            "Cancel");
+
+        if (result.GetValueOrDefault(false))
+        {
+            try
+            {
+                await AppService.DeleteUserAsync(record.Id!);
+                await (grid?.ReloadServerData() ?? Task.CompletedTask);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(ex.Message, Severity.Error);
+            }
+        }
+    }
+}
