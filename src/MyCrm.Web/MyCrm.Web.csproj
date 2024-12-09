@@ -75,4 +75,10 @@
     <PackageReference Include="Volo.Abp.Studio.Client.AspNetCore" Version="0.9.15" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="MyCrm.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

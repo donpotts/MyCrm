@@ -1260,6 +1260,60 @@ public class MyCrmDataSeederContributor
                 },
                 autoSave: true
             );
+
+            todoTasks[4] = await _todoTaskRepository.InsertAsync(
+                new TodoTask
+                {
+                    Name = "Create next weeks schedule",
+                    Description = "Call Mac Brown to discuss",
+                    AssignedTo = 3,
+                    Status = "To Do",
+                    DueDate = new DateTime(2025, 02, 01, 0, 0, 0),
+                    CreatedDateTime = new DateTime(2024, 1, 31, 0, 0, 0),
+                    ModifiedDateTime = new DateTime(2024, 2, 1, 0, 0, 0),
+                    UserId = 3,
+                    FollowupDate = new DateTime(2025, 1, 1, 0, 0, 0),
+                    Icon = "",
+                    Notes = "",
+                },
+                autoSave: true
+            );
+
+            todoTasks[5] = await _todoTaskRepository.InsertAsync(
+                new TodoTask
+                {
+                    Name = "Daily meeting",
+                    Description = "Daily tasks meeting",
+                    AssignedTo = 3,
+                    Status = "Open",
+                    DueDate = new DateTime(2024, 12, 10, 0, 0, 0),
+                    CreatedDateTime = new DateTime(2024, 1, 31, 0, 0, 0),
+                    ModifiedDateTime = new DateTime(2024, 2, 1, 0, 0, 0),
+                    UserId = 3,
+                    FollowupDate = new DateTime(2024, 12, 1, 0, 0, 0),
+                    Icon = "",
+                    Notes = "",
+                },
+                autoSave: true
+            );
+
+            todoTasks[6] = await _todoTaskRepository.InsertAsync(
+                new TodoTask
+                {
+                    Name = "Clean office",
+                    Description = "Weekly cleaning",
+                    AssignedTo = 3,
+                    Status = "Open",
+                    DueDate = new DateTime(2024, 12, 12, 0, 0, 0),
+                    CreatedDateTime = new DateTime(2024, 1, 31, 0, 0, 0),
+                    ModifiedDateTime = new DateTime(2024, 2, 1, 0, 0, 0),
+                    UserId = 3,
+                    FollowupDate = new DateTime(2024, 12, 24, 0, 0, 0),
+                    Icon = "",
+                    Notes = "",
+                },
+                autoSave: true
+            );
         }
     }
 }

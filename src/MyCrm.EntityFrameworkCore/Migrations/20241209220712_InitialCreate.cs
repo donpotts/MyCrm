@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MyCrm.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -64,21 +64,6 @@ namespace MyCrm.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AbpBackgroundJobs", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AbpBlobContainers",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
-                    ExtraProperties = table.Column<string>(type: "TEXT", nullable: false),
-                    ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AbpBlobContainers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -428,6 +413,206 @@ namespace MyCrm.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AppAddresses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Street = table.Column<string>(type: "TEXT", nullable: true),
+                    City = table.Column<string>(type: "TEXT", nullable: true),
+                    State = table.Column<string>(type: "TEXT", nullable: true),
+                    ZipCode = table.Column<int>(type: "INTEGER", nullable: false),
+                    Country = table.Column<string>(type: "TEXT", nullable: true),
+                    Photo = table.Column<string>(type: "TEXT", nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
+                    ExtraProperties = table.Column<string>(type: "TEXT", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppAddresses", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppOpportunities",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    EstimatedCloseDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Stage = table.Column<string>(type: "TEXT", nullable: true),
+                    Icon = table.Column<string>(type: "TEXT", nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
+                    ExtraProperties = table.Column<string>(type: "TEXT", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppOpportunities", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppProductCategories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    Icon = table.Column<string>(type: "TEXT", nullable: true),
+                    TaxRate = table.Column<string>(type: "TEXT", nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
+                    ExtraProperties = table.Column<string>(type: "TEXT", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppProductCategories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppRewards",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Rewardpoints = table.Column<int>(type: "INTEGER", nullable: false),
+                    CreditsDollars = table.Column<double>(type: "REAL", nullable: false),
+                    ConversionRate = table.Column<string>(type: "TEXT", nullable: true),
+                    ExpirationDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
+                    ExtraProperties = table.Column<string>(type: "TEXT", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppRewards", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppSales",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ProductId = table.Column<string>(type: "TEXT", nullable: true),
+                    ServiceId = table.Column<string>(type: "TEXT", nullable: true),
+                    CustomerId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Quantity = table.Column<int>(type: "INTEGER", nullable: false),
+                    TotalAmount = table.Column<double>(type: "REAL", nullable: false),
+                    SaleDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    ReceiptPhoto = table.Column<string>(type: "TEXT", nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
+                    ExtraProperties = table.Column<string>(type: "TEXT", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppSales", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppServiceCategories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    Icon = table.Column<string>(type: "TEXT", nullable: true),
+                    TaxRate = table.Column<string>(type: "TEXT", nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
+                    ExtraProperties = table.Column<string>(type: "TEXT", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppServiceCategories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppSupportCases",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    CustomerId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ProductId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ServiceId = table.Column<string>(type: "TEXT", nullable: true),
+                    Status = table.Column<string>(type: "TEXT", nullable: true),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    ModifiedDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
+                    FollowupDate = table.Column<string>(type: "TEXT", nullable: true),
+                    Icon = table.Column<string>(type: "TEXT", nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
+                    ExtraProperties = table.Column<string>(type: "TEXT", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppSupportCases", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppTodoTasks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    AssignedTo = table.Column<int>(type: "INTEGER", nullable: false),
+                    Status = table.Column<string>(type: "TEXT", nullable: true),
+                    DueDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatedDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    ModifiedDateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
+                    FollowupDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Icon = table.Column<string>(type: "TEXT", nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
+                    ExtraProperties = table.Column<string>(type: "TEXT", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppTodoTasks", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OpenIddictApplications",
                 columns: table => new
                 {
@@ -536,29 +721,6 @@ namespace MyCrm.Migrations
                         name: "FK_AbpEntityChanges_AbpAuditLogs_AuditLogId",
                         column: x => x.AuditLogId,
                         principalTable: "AbpAuditLogs",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AbpBlobs",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ContainerId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TenantId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 256, nullable: false),
-                    Content = table.Column<byte[]>(type: "BLOB", maxLength: 2147483647, nullable: true),
-                    ExtraProperties = table.Column<string>(type: "TEXT", nullable: false),
-                    ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AbpBlobs", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AbpBlobs_AbpBlobContainers_ContainerId",
-                        column: x => x.ContainerId,
-                        principalTable: "AbpBlobContainers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -746,6 +908,101 @@ namespace MyCrm.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AppProducts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    Price = table.Column<double>(type: "REAL", nullable: false),
+                    StockQuantity = table.Column<int>(type: "INTEGER", nullable: false),
+                    Photo = table.Column<string>(type: "TEXT", nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
+                    ProductCategoryId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ExtraProperties = table.Column<string>(type: "TEXT", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppProducts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppProducts_AppProductCategories_ProductCategoryId",
+                        column: x => x.ProductCategoryId,
+                        principalTable: "AppProductCategories",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppContacts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    Email = table.Column<string>(type: "TEXT", nullable: true),
+                    Phone = table.Column<int>(type: "INTEGER", nullable: false),
+                    Role = table.Column<string>(type: "TEXT", nullable: true),
+                    Photo = table.Column<string>(type: "TEXT", nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
+                    AddressId = table.Column<int>(type: "INTEGER", nullable: true),
+                    RewardId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ExtraProperties = table.Column<string>(type: "TEXT", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppContacts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppContacts_AppAddresses_AddressId",
+                        column: x => x.AddressId,
+                        principalTable: "AppAddresses",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_AppContacts_AppRewards_RewardId",
+                        column: x => x.RewardId,
+                        principalTable: "AppRewards",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppServices",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    Recurring = table.Column<string>(type: "TEXT", nullable: true),
+                    Icon = table.Column<string>(type: "TEXT", nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
+                    ServiceCategoryId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ExtraProperties = table.Column<string>(type: "TEXT", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppServices", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppServices_AppServiceCategories_ServiceCategoryId",
+                        column: x => x.ServiceCategoryId,
+                        principalTable: "AppServiceCategories",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OpenIddictAuthorizations",
                 columns: table => new
                 {
@@ -791,6 +1048,124 @@ namespace MyCrm.Migrations
                         principalTable: "AbpEntityChanges",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppCustomers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    Type = table.Column<string>(type: "TEXT", nullable: true),
+                    Industry = table.Column<string>(type: "TEXT", nullable: true),
+                    Logo = table.Column<string>(type: "TEXT", nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
+                    AddressId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ContactId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ExtraProperties = table.Column<string>(type: "TEXT", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppCustomers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppCustomers_AppAddresses_AddressId",
+                        column: x => x.AddressId,
+                        principalTable: "AppAddresses",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_AppCustomers_AppContacts_ContactId",
+                        column: x => x.ContactId,
+                        principalTable: "AppContacts",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppLeads",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Source = table.Column<string>(type: "TEXT", nullable: true),
+                    Status = table.Column<string>(type: "TEXT", nullable: true),
+                    PotentialValue = table.Column<double>(type: "REAL", nullable: false),
+                    Photo = table.Column<string>(type: "TEXT", nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
+                    AddressId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ContactId = table.Column<int>(type: "INTEGER", nullable: true),
+                    OpportunityId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ExtraProperties = table.Column<string>(type: "TEXT", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppLeads", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppLeads_AppAddresses_AddressId",
+                        column: x => x.AddressId,
+                        principalTable: "AppAddresses",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_AppLeads_AppContacts_ContactId",
+                        column: x => x.ContactId,
+                        principalTable: "AppContacts",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_AppLeads_AppOpportunities_OpportunityId",
+                        column: x => x.OpportunityId,
+                        principalTable: "AppOpportunities",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AppVendors",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    ContactName = table.Column<string>(type: "TEXT", nullable: true),
+                    Phone = table.Column<int>(type: "INTEGER", nullable: false),
+                    Email = table.Column<string>(type: "TEXT", nullable: true),
+                    Logo = table.Column<string>(type: "TEXT", nullable: true),
+                    Notes = table.Column<string>(type: "TEXT", nullable: true),
+                    AddressId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ServiceId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ProductId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ExtraProperties = table.Column<string>(type: "TEXT", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false),
+                    CreationTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    LastModificationTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    LastModifierId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppVendors", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AppVendors_AppAddresses_AddressId",
+                        column: x => x.AddressId,
+                        principalTable: "AppAddresses",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_AppVendors_AppProducts_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "AppProducts",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_AppVendors_AppServices_ServiceId",
+                        column: x => x.ServiceId,
+                        principalTable: "AppServices",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -851,21 +1226,6 @@ namespace MyCrm.Migrations
                 name: "IX_AbpBackgroundJobs_IsAbandoned_NextTryTime",
                 table: "AbpBackgroundJobs",
                 columns: new[] { "IsAbandoned", "NextTryTime" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AbpBlobContainers_TenantId_Name",
-                table: "AbpBlobContainers",
-                columns: new[] { "TenantId", "Name" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AbpBlobs_ContainerId",
-                table: "AbpBlobs",
-                column: "ContainerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AbpBlobs_TenantId_ContainerId_Name",
-                table: "AbpBlobs",
-                columns: new[] { "TenantId", "ContainerId", "Name" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AbpEntityChanges_AuditLogId",
@@ -1057,6 +1417,66 @@ namespace MyCrm.Migrations
                 column: "UserName");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AppContacts_AddressId",
+                table: "AppContacts",
+                column: "AddressId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppContacts_RewardId",
+                table: "AppContacts",
+                column: "RewardId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppCustomers_AddressId",
+                table: "AppCustomers",
+                column: "AddressId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppCustomers_ContactId",
+                table: "AppCustomers",
+                column: "ContactId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppLeads_AddressId",
+                table: "AppLeads",
+                column: "AddressId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppLeads_ContactId",
+                table: "AppLeads",
+                column: "ContactId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppLeads_OpportunityId",
+                table: "AppLeads",
+                column: "OpportunityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppProducts_ProductCategoryId",
+                table: "AppProducts",
+                column: "ProductCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppServices_ServiceCategoryId",
+                table: "AppServices",
+                column: "ServiceCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppVendors_AddressId",
+                table: "AppVendors",
+                column: "AddressId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppVendors_ProductId",
+                table: "AppVendors",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppVendors_ServiceId",
+                table: "AppVendors",
+                column: "ServiceId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OpenIddictApplications_ClientId",
                 table: "OpenIddictApplications",
                 column: "ClientId");
@@ -1095,9 +1515,6 @@ namespace MyCrm.Migrations
 
             migrationBuilder.DropTable(
                 name: "AbpBackgroundJobs");
-
-            migrationBuilder.DropTable(
-                name: "AbpBlobs");
 
             migrationBuilder.DropTable(
                 name: "AbpClaimTypes");
@@ -1166,13 +1583,28 @@ namespace MyCrm.Migrations
                 name: "AbpUserTokens");
 
             migrationBuilder.DropTable(
+                name: "AppCustomers");
+
+            migrationBuilder.DropTable(
+                name: "AppLeads");
+
+            migrationBuilder.DropTable(
+                name: "AppSales");
+
+            migrationBuilder.DropTable(
+                name: "AppSupportCases");
+
+            migrationBuilder.DropTable(
+                name: "AppTodoTasks");
+
+            migrationBuilder.DropTable(
+                name: "AppVendors");
+
+            migrationBuilder.DropTable(
                 name: "OpenIddictScopes");
 
             migrationBuilder.DropTable(
                 name: "OpenIddictTokens");
-
-            migrationBuilder.DropTable(
-                name: "AbpBlobContainers");
 
             migrationBuilder.DropTable(
                 name: "AbpEntityChanges");
@@ -1190,10 +1622,34 @@ namespace MyCrm.Migrations
                 name: "AbpUsers");
 
             migrationBuilder.DropTable(
+                name: "AppContacts");
+
+            migrationBuilder.DropTable(
+                name: "AppOpportunities");
+
+            migrationBuilder.DropTable(
+                name: "AppProducts");
+
+            migrationBuilder.DropTable(
+                name: "AppServices");
+
+            migrationBuilder.DropTable(
                 name: "OpenIddictAuthorizations");
 
             migrationBuilder.DropTable(
                 name: "AbpAuditLogs");
+
+            migrationBuilder.DropTable(
+                name: "AppAddresses");
+
+            migrationBuilder.DropTable(
+                name: "AppRewards");
+
+            migrationBuilder.DropTable(
+                name: "AppProductCategories");
+
+            migrationBuilder.DropTable(
+                name: "AppServiceCategories");
 
             migrationBuilder.DropTable(
                 name: "OpenIddictApplications");

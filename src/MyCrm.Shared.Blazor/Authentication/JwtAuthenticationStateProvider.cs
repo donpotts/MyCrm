@@ -33,6 +33,7 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
         var RequestBody = new List<KeyValuePair<string, string>>
         {
             new KeyValuePair<string, string>("client_id", loginModel.ClientId),
+            new KeyValuePair<string, string>("client_secret", "1q2w3e*"),
             new KeyValuePair<string, string>("grant_type", loginModel.GrantType),
             new KeyValuePair<string, string>("username", loginModel.UserName),
             new KeyValuePair<string, string>("password", loginModel.Password),
