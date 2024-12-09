@@ -39,4 +39,10 @@
     <_ContentIncludedByDefault Remove="Pages\UpdatePermissions.razor" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Pages\KanbanTodoTask.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
+
 </Project>

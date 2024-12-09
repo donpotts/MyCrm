@@ -240,5 +240,15 @@ public class MyCrmDbContext :
                 MyCrmConsts.DbSchema);
             b.ConfigureByConvention();
         });
+
+        builder.Entity<TodoTask>().HasData(
+                new TodoTask { Name = "Create next weeks schedule", Status = "To Do" },
+                new TodoTask { Name = "Clean office", Status = "To Do" },
+                new TodoTask { Name = "Review weekly tasks", Status = "To Do" },
+                new TodoTask { Name = "Daily meeting", Status = "In Process" },
+                new TodoTask { Name = "Make a journal entry", Status = "In Process" },
+                new TodoTask { Name = "Check morning email", Status = "In Process" },
+                new TodoTask { Name = "Make morning coffee", Status = "Done" }
+            );
     }
 }
