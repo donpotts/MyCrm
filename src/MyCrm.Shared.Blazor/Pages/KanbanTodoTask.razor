@@ -330,7 +330,7 @@
             records = res.Items.ToArray();
 
             var dataItems = records;
-            _tasks = dataItems.Select(d => new KanbanTaskItem((int)d.Id, d.Name, d.Status, d.Description, d.DueDate, d.CreatedDateTime, d.ModifiedDateTime, d.FollowupDate, d.Notes)).ToList();
+            _tasks = dataItems.Select(d => new KanbanTaskItem((int) d.Id, d.Name, d.Status, d.Description, d.DueDate, d.CreatedDateTime, d.ModifiedDateTime, d.FollowupDate, d.Notes)).ToList();
             
         }
         catch (Exception ex)
